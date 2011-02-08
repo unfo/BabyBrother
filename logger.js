@@ -81,7 +81,9 @@ function searchUrls(term) {
         }
     }
     if (matches.length > 0) {
-        md5.update(term + Math.random());
+        var hashData = term + Math.random();
+        sys.puts("trying md5.update(" + hashData + ")");
+        md5.update(hashData);
         var searchKey = md5.digest('hex');
         searches[searchKey] = matches;
         return searchKey;
