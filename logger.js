@@ -30,11 +30,12 @@ function handleRequest(request, response) {
     } else {
         try {
             var key;
-            if (data.query.key) {
+            if (typeof(data.query.key) !== "undefined") {
                 key = data.query.key;
-            } else if (data.query.search) {
+            } else if (typeof(data.query.search) !== "undefined") {
                 key = searchUrls(decodeURI(data.query.search));
             }
+            sys.puts("Key = " + key);
             var searchResults = searches[key];
             if (typeof(searchResults) !== undefined && searchResults != null) {
                 var searchJson = JSON.stringify(searchResults);
@@ -118,9 +119,9 @@ client.addListener('message', function (from, to, message) {
            } else {
                var searchMatches = searches[searchResults];
                var numMatches = searchMatches.length;
-               var reply = "Match 1/" + numMatches + ":" + searchMatches[0];
+               var reply = "Match 1/" + numMatches + ": " + searchMatches[0];
                if (numMatches > 1) {
-                    reply += " - you can see the rest here: http://ec2-46-137-6-201.eu-west-1.compute.amazonaws.com:8000/?key=" + searchResults;
+                    reply += " - you can see the rest here: http://46.137.6.201:8000/?key=" + searchResults;
                }
                
                client.say(CHANNEL, reply);
