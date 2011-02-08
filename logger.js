@@ -5,11 +5,22 @@ sys = require('sys'),
 sanitizer = require('sanitizer'),
 connect = require('connect');
 
+
+http.createServer(handleRequest).listen(8000);
+
 var urls = [];
 var CHANNEL = "#bigbrotherislistening";
 var matcher = /(https?:\/\/[^ ]+)/;
 var cmd = /.urls ?(.+?)?$/;
-var client = new irc.Client('eu.irc6.net', 'unfoshelper', { channels: [CHANNEL] });
+var client = new irc.Client('irc.stealth.net', 'unfoshelper', { channels: [CHANNEL] });
+
+
+function handleRequest(request, response) {
+    sys.puts(request);
+    response.writeHead(200, {'Content-Type': 'text/json'});
+    response.write(JSON.stringify("Hello world"));
+    response.close();
+}
 
 function addIfNew(url) {
     sys.puts("addIfNew(" + url + ")");
@@ -76,6 +87,12 @@ if (typeof(client) === "undefined") {
         addListener: this.say
     }
 }
+
+if (typeof(http) === "undefined") {
+    http = {
+        createServer: function() { return { listen: function(i) {}} }
+    };
+
 if (typeof(require) === "undefined") { require = function() { return {Client: function() {}}}}
 
 
