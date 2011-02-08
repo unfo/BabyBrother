@@ -25,7 +25,7 @@ function handleRequest(request, response) {
     if (data["href"] == "/favicon.ico") {
         response.writeHead(404, {'Content-Type': 'text/plain'});
         response.write("Favicon not found");
-    } else if (data.search.length == 0) {
+    } else if (typeof(data.search) === "undefined") {
         response.writeHead(200, {'Content-Type': 'text/html'});
         response.write("<input type='text' name='search'/><input type='submit' value='Go'/>");
     } else {
