@@ -103,11 +103,15 @@ function searchUrls(term) {
 }
 
 function parseOldLogFile() {
-     path.exists('#can_i_has_server.txt', function(exists) {
+     path.exists('#can_i_has_server.log', function(exists) {
         if (exists) {
-            var fd = fs.createReadStream('#can_i_has_server.txt');
-            var data = fd.data();
-            searches = JSON.parse(data);
+             fs.readFile('#can_i_has_server.log', function (err, data) {
+                if (err) {
+                    sys.puts("error reading searches: " + err);
+                } else {
+                    findAllUrls(data);
+                }
+            });
         }
     });
 }
@@ -140,9 +144,8 @@ function loadFromFS() {
                 if (err) {
                     sys.puts("error reading urls: " + err);
                 } else {
-                    sys.puts("Got data: " + data);
                     urls = JSON.parse(data);
-                    sys.puts("parsed: " + urls);
+                    client.say(CHANNEL, "parsed " + urls.length + " urls")
                 }
             });
         }
@@ -159,12 +162,25 @@ function loadFromFS() {
         }
     });
 }
-
-function addUrlFromLine(line) {
+function findAllUrls(data) {
+    var text = data.toString('utf8');
+    sys.puts("Starting to parse " + text.length + " characters of data");
+    var lines = text.split('\n');
+    sys.puts("Total of " + lines.length + " lines");
+    while (lines.length > 0) {
+        var line = lines.pop();
+        addUrlsFromLine(line);
+    }
+}
+function addUrlsFromLine(line) {
     var urlMatches = line.match(matcher);
     if (urlMatches != null) {
-        for (var i = 0; i < urlMatches.length; i++) {
-            addIfNew(urlMatches[i]);
+        var url = urlMatches[0];
+        addIfNew(url);
+        var matchLength = url.length;
+        var tail = line.substring(line.indexOf(url) + matchLength);
+        if (tail.length > "http://".length) {
+            addUrlsFromLine(tail);
         }
     }
 }
@@ -172,7 +188,7 @@ function addUrlFromLine(line) {
 client.addListener('message', function (from, to, message) {
    // socket.broadcast(sanitizer.escape(message));
     sys.puts(from + ' => ' + to + ': ' + message);
-    addUrlFromLine(message);
+    addUrlsFromLine(message);
    var cmdMatch = message.match(cmd);
    //sys.puts("cmdMatch: " + cmdMatch + "; .length=" + (cmdMatch == null ? "null" : cmdMatch.length));
    if (cmdMatch != null) {
@@ -206,7 +222,6 @@ client.addListener('message', function (from, to, message) {
 
     if (message == ".load") {
         loadFromFS();
-        client.say(CHANNEL, "Url count now: " + urls.length + "; searches count now: " + searches.length);
     }
 
 });
