@@ -92,6 +92,7 @@ if (typeof(http) === "undefined") {
     http = {
         createServer: function() { return { listen: function(i) {}} }
     };
+}
 
 if (typeof(require) === "undefined") { require = function() { return {Client: function() {}}}}
 
