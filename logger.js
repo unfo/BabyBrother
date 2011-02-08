@@ -20,24 +20,29 @@ var client = new irc.Client('irc.stealth.net', 'unfoshelper', { channels: [CHANN
 
 
 function handleRequest(request, response) {
-    var data = url.parse(request.url);
+    var data = url.parse(request.url, true);
     sys.puts(JSON.stringify(data));
-    try {
-        var searchKey = data.query.search;
-        var search = searches[searchKey];
-        if (typeof(search) !== undefined) {
-            response.writeHead(200, {'Content-Type': 'text/json'});
-            response.write(JSON.stringify(search));
-        } else {
-            response.writeHead(404, {'Content-Type': 'text/plain'});
-            response.write("Search not found");
+    if (data["href"] == "/favicon.ico") {
+        response.writeHead(404, {'Content-Type': 'text/plain'});
+        response.write("Favicon not found");
+    } else {
+        try {
+            var searchKey = data.query.search;
+            var search = searches[searchKey];
+            if (typeof(search) !== undefined && search != null) {
+                response.writeHead(200, {'Content-Type': 'text/json'});
+                response.write(JSON.stringify(search));
+            } else {
+                response.writeHead(404, {'Content-Type': 'text/plain'});
+                response.write("Search not found");
+            }
+        } catch (err) {
+            sys.puts("ERROR:: "  + err);
+            response.writeHead(500, {'Content-Type': 'text/plain'});
+            response.write("You broke it! (not really.)");
         }
-    } catch (err) {
-        sys.puts("ERROR:: "  + err);
-        response.writeHead(500, {'Content-Type': 'text/plain'});
-        response.write("You broke it! (not really.)");
     }
-    
+
     response.end();
 }
 
