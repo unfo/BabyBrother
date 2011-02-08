@@ -7,7 +7,8 @@ connect = require('connect'),
 crypto = require('crypto'),
 fs = require('fs'),
 path = require('path'),
-url = require('url');
+url = require('url'),
+repl = require("repl");
 
 
 http.createServer(handleRequest).listen(8000);
@@ -231,6 +232,7 @@ client.addListener('message', function (from, to, message) {
 
 });
 
+repl.start("bot> ");
 
 // this is for IDEA
 if (typeof(sys) === "undefined") { sys = { puts: function() {} }}
