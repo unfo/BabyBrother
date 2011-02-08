@@ -118,12 +118,15 @@ function saveToFS() {
         var fd = fs.createWriteStream('urls.json');
         var contents = JSON.stringify(urls);
         fd.write(contents);
-        fd.close();
+        fd.end();
+        fd.destroy();
 
         var fd2 = fs.createWriteStream('searches.json');
         contents = JSON.stringify(searches);
         fd2.write(contents);
-        fd2.close();
+        fd2.end();
+        fd2.destroy();
+
 
     } catch (err) {
         sys.puts(err);
@@ -138,6 +141,7 @@ function loadFromFS() {
         if (exists) {
             var fd = fs.createReadStream('urls.json');
             var data = fd.data();
+            fd.destroy();
             urls = JSON.parse(data);
         }
     });
@@ -145,6 +149,7 @@ function loadFromFS() {
         if (exists) {
             var fd = fs.createReadStream('searches.json');
             var data = fd.data();
+            fd.destroy();
             searches = JSON.parse(data);
         }
     });
