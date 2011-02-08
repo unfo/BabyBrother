@@ -37,8 +37,12 @@ function handleRequest(request, response) {
             }
             var searchResults = searches[key];
             if (typeof(searchResults) !== undefined && searchResults != null) {
-                response.writeHead(200, {'Content-Type': 'text/json'});
-                response.write(JSON.stringify(searchResults));
+                var searchJson = JSON.stringify(searchResults);
+                response.writeHead(200, {
+                    'Content-Type': 'text/json',
+                    'Content-Length': searchJson.length
+                });
+                response.write();
             } else {
                 response.writeHead(404, {'Content-Type': 'text/plain'});
                 response.write("Search not found");
