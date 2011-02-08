@@ -100,7 +100,12 @@ client.addListener('message', function (from, to, message) {
            } else {
                var searchMatches = searches[searchResults];
                var numMatches = searchMatches.length;
-               client.say(CHANNEL, "Match 1/" + numMatches + ":" + searchMatches[0] + (numMatches > 1 ? " - you can see the rest here: http://ec2-46-137-6-201.eu-west-1.compute.amazonaws.com/?search=" + searchResults : "");
+               var reply = "Match 1/" + numMatches + ":" + searchMatches[0];
+               if (numMatches > 1) {
+                    reply += " - you can see the rest here: http://ec2-46-137-6-201.eu-west-1.compute.amazonaws.com/?search=" + searchResults;
+               }
+               
+               client.say(CHANNEL, reply);
            }
        }
    }
