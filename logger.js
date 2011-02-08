@@ -42,7 +42,7 @@ function handleRequest(request, response) {
                 sys.puts(searchResults);
                 var searchJson = JSON.stringify(searchResults);
                 response.writeHead(200, {
-                    'Content-Type': 'text/json',
+                    'Content-Type': 'application/json',
                     'Content-Length': searchJson.length
                 });
                 response.write(searchJson);
