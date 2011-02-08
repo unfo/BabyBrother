@@ -38,6 +38,8 @@ function handleRequest(request, response) {
             sys.puts("Key = " + key);
             var searchResults = searches[key];
             if (typeof(searchResults) !== undefined && searchResults != null) {
+                sys.puts("typeof(searchResults) = " + typeof(searchResults));
+                sys.puts(searchResults);
                 var searchJson = JSON.stringify(searchResults);
                 response.writeHead(200, {
                     'Content-Type': 'text/json',
