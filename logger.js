@@ -115,19 +115,16 @@ function parseOldLogFile() {
 
 function saveToFS() {
     try {
-        var fd = fs.createWriteStream('urls.json');
         var contents = JSON.stringify(urls);
-        fd.write(contents);
-        fd.end();
-        fd.destroy();
-
-        var fd2 = fs.createWriteStream('searches.json');
+        fs.writeFile('urls.json',contents, function (err) {
+          if (err) throw err;
+          sys.puts('Save OK');
+        });
         contents = JSON.stringify(searches);
-        fd2.write(contents);
-        fd2.end();
-        fd2.destroy();
-
-
+        fs.writeFile('searches.json', contents, function (err) {
+          if (err) throw err;
+          sys.puts('Save OK');
+        });
     } catch (err) {
         sys.puts(err);
         return false;
@@ -139,18 +136,24 @@ function saveToFS() {
 function loadFromFS() {
     path.exists('urls.json', function(exists) {
         if (exists) {
-            var fd = fs.createReadStream('urls.json');
-            var data = fd.data();
-            fd.destroy();
-            urls = JSON.parse(data);
+            fs.readFile('urls.json', function (err, data) {
+                if (err) {
+                    sys.puts("error reading urls: " + err);
+                } else {
+                    urls = JSON.parse(data);
+                }
+            });
         }
     });
     path.exists('searches.json', function(exists) {
         if (exists) {
-            var fd = fs.createReadStream('searches.json');
-            var data = fd.data();
-            fd.destroy();
-            searches = JSON.parse(data);
+             fs.readFile('searches.json', function (err, data) {
+                if (err) {
+                    sys.puts("error reading searches: " + err);
+                } else {
+                    searches = JSON.parse(data);
+                }
+            });
         }
     });
 }
