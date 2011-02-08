@@ -167,10 +167,15 @@ function findAllUrls(data) {
     sys.puts("Starting to parse " + text.length + " characters of data");
     var lines = text.split('\n');
     sys.puts("Total of " + lines.length + " lines");
+    var urlsBefore = urls.length;
+    var now = new Date();
     while (lines.length > 0) {
         var line = lines.pop();
         addUrlsFromLine(line);
     }
+    var done = new Date();
+    client.say(CHANNEL, "Successfully read old log. Urls found: " + (urls.length - urlsBefore) + ". Parsing took: " + (done - now) + "ms");
+
 }
 function addUrlsFromLine(line) {
     var urlMatches = line.match(matcher);
