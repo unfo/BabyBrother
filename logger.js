@@ -140,7 +140,9 @@ function loadFromFS() {
                 if (err) {
                     sys.puts("error reading urls: " + err);
                 } else {
+                    sys.puts("Got data: " + data);
                     urls = JSON.parse(data);
+                    sys.puts("parsed: " + urls);
                 }
             });
         }
