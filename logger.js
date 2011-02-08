@@ -3,12 +3,16 @@ io = require('socket.io'),
 irc = require('irc'),
 sys = require('sys'),
 sanitizer = require('sanitizer'),
-connect = require('connect');
+connect = require('connect'),
+crypto = require('crypto'),
+md5 = crypto.createHash('md5'),
+url = require('url');
 
 
 http.createServer(handleRequest).listen(8000);
 
 var urls = [];
+var searches = {};
 var CHANNEL = "#bigbrotherislistening";
 var matcher = /(https?:\/\/[^ ]+)/;
 var cmd = /.urls ?(.+?)?$/;
@@ -16,11 +20,27 @@ var client = new irc.Client('irc.stealth.net', 'unfoshelper', { channels: [CHANN
 
 
 function handleRequest(request, response) {
-    sys.puts(request);
-    response.writeHead(200, {'Content-Type': 'text/json'});
-    response.write(JSON.stringify("Hello world"));
-    response.close();
+    var data = url.parse(request.url);
+    sys.puts(JSON.stringify(data));
+    try {
+        var searchKey = data.query.search;
+        var search = searches[searchKey];
+        if (typeof(search) !== undefined) {
+            response.writeHead(200, {'Content-Type': 'text/json'});
+            response.write(JSON.stringify(search));
+        } else {
+            response.writeHead(404, {'Content-Type': 'text/plain'});
+            response.write("Search not found");
+        }
+    } catch (err) {
+        sys.puts("ERROR:: "  + err);
+        response.writeHead(500, {'Content-Type': 'text/plain'});
+        response.write("You broke it! (not really.)");
+    }
+    
+    response.end();
 }
+
 
 function addIfNew(url) {
     sys.puts("addIfNew(" + url + ")");
@@ -47,7 +67,14 @@ function searchUrls(term) {
             matches.push(urls[i]);
         }
     }
-    return matches;
+    if (matches.length > 0) {
+        md5.update(term + Math.random());
+        var searchKey = md5.digest('hex');
+        searches[searchKey] = matches;
+        return searchKey;
+    } else {
+        return "";
+    }
 }
 
 
@@ -57,9 +84,9 @@ client.addListener('message', function (from, to, message) {
    sys.puts(from + ' => ' + to + ': ' + message);
    sys.puts("urlMatches: " + urlMatches);
    if (urlMatches != null) {
-
-       for (var i = 0; i < urlMatches.length; i++)
+       for (var i = 0; i < urlMatches.length; i++) {
            addIfNew(urlMatches[i]);
+       }
    }
    var cmdMatch = message.match(cmd);
    sys.puts("cmdMatch: " + cmdMatch + "; .length=" + (cmdMatch == null ? "null" : cmdMatch.length));
@@ -71,7 +98,9 @@ client.addListener('message', function (from, to, message) {
            if (searchResults.length == 0) {
                client.say(CHANNEL, "0/" + urls.length + " urls match");
            } else {
-               client.say(CHANNEL, "First match: " + searchResults[0]);
+               var searchMatches = searches[searchResults];
+               var numMatches = searchMatches.length;
+               client.say(CHANNEL, "Match 1/" + numMatches + ":" + searchMatches[0] + (numMatches > 1 ? " - you can see the rest here: http://ec2-46-137-6-201.eu-west-1.compute.amazonaws.com/?search=" + searchResults : "");
            }
        }
    }
