@@ -5,6 +5,8 @@ sys = require('sys'),
 sanitizer = require('sanitizer'),
 connect = require('connect'),
 crypto = require('crypto'),
+fs = require('fs'),
+path = require('path'),
 url = require('url');
 
 
@@ -72,6 +74,9 @@ function addIfNew(url) {
     if (!found) {
         sys.puts("New url:: " + url);
         urls.push(url);
+        return true;
+    } else {
+        return false;
     }
 
 }
@@ -97,17 +102,67 @@ function searchUrls(term) {
     }
 }
 
+function parseOldLogFile() {
+     path.exists('#can_i_has_server.txt', function(exists) {
+        if (exists) {
+            var fd = fs.createReadStream('#can_i_has_server.txt');
+            var data = fd.data();
+            searches = JSON.parse(data);
+        }
+    });
+}
+
+
+function saveToFS() {
+    try {
+        var fd = fs.createWriteStream('urls.json');
+        var contents = JSON.stringify(urls);
+        fd.write(contents);
+        fd.close();
+
+        var fd2 = fs.createWriteStream('searches.json');
+        contents = JSON.stringify(searches);
+        fd2.write(contents);
+        fd2.close();
+
+    } catch (err) {
+        sys.puts(err);
+        return false;
+    }
+    return true;
+
+
+}
+function loadFromFS() {
+    path.exists('urls.json', function(exists) {
+        if (exists) {
+            var fd = fs.createReadStream('urls.json');
+            var data = fd.data();
+            urls = JSON.parse(data);
+        }
+    });
+    path.exists('searches.json', function(exists) {
+        if (exists) {
+            var fd = fs.createReadStream('searches.json');
+            var data = fd.data();
+            searches = JSON.parse(data);
+        }
+    });
+}
+
+function addUrlFromLine(line) {
+    var urlMatches = line.match(matcher);
+    if (urlMatches != null) {
+        for (var i = 0; i < urlMatches.length; i++) {
+            addIfNew(urlMatches[i]);
+        }
+    }
+}
 
 client.addListener('message', function (from, to, message) {
    // socket.broadcast(sanitizer.escape(message));
-   var urlMatches = message.match(matcher);
-   sys.puts(from + ' => ' + to + ': ' + message);
-   //sys.puts("urlMatches: " + urlMatches);
-   if (urlMatches != null) {
-       for (var i = 0; i < urlMatches.length; i++) {
-           addIfNew(urlMatches[i]);
-       }
-   }
+    sys.puts(from + ' => ' + to + ': ' + message);
+    addUrlFromLine(message);
    var cmdMatch = message.match(cmd);
    //sys.puts("cmdMatch: " + cmdMatch + "; .length=" + (cmdMatch == null ? "null" : cmdMatch.length));
    if (cmdMatch != null) {
@@ -129,6 +184,20 @@ client.addListener('message', function (from, to, message) {
            }
        }
    }
+
+    if (message == ".old") {
+        var oldUrls = parseOldLogFile();
+    }
+
+    if (message == ".save") {
+        var success = saveToFS();
+        client.say(CHANNEL, "Save operation was " + (success ? "successful" : "a failure" ));
+    }
+
+    if (message == ".load") {
+        loadFromFS();
+        client.say(CHANNEL, "Url count now: " + urls.length + "; searches count now: " + searches.length);
+    }
 
 });
 
