@@ -27,7 +27,7 @@ function handleRequest(request, response) {
         response.write("Favicon not found");
     } else if (typeof(data.search) === "undefined") {
         response.writeHead(200, {'Content-Type': 'text/html'});
-        response.write("<input type='text' name='search'/><input type='submit' value='Go'/>");
+        response.write("<form method='get'><input type='text' name='search'/><input type='submit' value='Go'/></form>");
     } else {
         try {
             var key;
