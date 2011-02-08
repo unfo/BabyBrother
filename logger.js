@@ -62,17 +62,15 @@ function handleRequest(request, response) {
 
 
 function addIfNew(url) {
-    sys.puts("addIfNew(" + url + ")");
     var found = false;
     for (var i = 0; i < urls.length; i++) {
         if (urls[i] == url) {
-            sys.puts("Already found");
             found = true;
             break;
         }
     }
     if (!found) {
-        sys.puts("Url not found, adding");
+        sys.puts("New url:: " + url);
         urls.push(url);
     }
 
@@ -103,14 +101,14 @@ client.addListener('message', function (from, to, message) {
    // socket.broadcast(sanitizer.escape(message));
    var urlMatches = message.match(matcher);
    sys.puts(from + ' => ' + to + ': ' + message);
-   sys.puts("urlMatches: " + urlMatches);
+   //sys.puts("urlMatches: " + urlMatches);
    if (urlMatches != null) {
        for (var i = 0; i < urlMatches.length; i++) {
            addIfNew(urlMatches[i]);
        }
    }
    var cmdMatch = message.match(cmd);
-   sys.puts("cmdMatch: " + cmdMatch + "; .length=" + (cmdMatch == null ? "null" : cmdMatch.length));
+   //sys.puts("cmdMatch: " + cmdMatch + "; .length=" + (cmdMatch == null ? "null" : cmdMatch.length));
    if (cmdMatch != null) {
        if (cmdMatch[1] == null || cmdMatch[1].length == 0){
            client.say(CHANNEL, "Total urls: " + urls.length);
