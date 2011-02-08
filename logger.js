@@ -45,7 +45,7 @@ function handleRequest(request, response) {
                     'Content-Type': 'text/json',
                     'Content-Length': searchJson.length
                 });
-                response.write();
+                response.write(searchJson);
             } else {
                 response.writeHead(404, {'Content-Type': 'text/plain'});
                 response.write("Search not found");
@@ -89,6 +89,7 @@ function searchUrls(term) {
         var md5 = crypto.createHash('md5');
         md5.update(hashData);
         var searchKey = md5.digest('hex');
+        sys.puts("Matches = " + typeof(matches));
         searches[searchKey] = matches;
         return searchKey;
     } else {
