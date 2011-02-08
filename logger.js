@@ -5,7 +5,6 @@ sys = require('sys'),
 sanitizer = require('sanitizer'),
 connect = require('connect'),
 crypto = require('crypto'),
-md5 = crypto.createHash('md5'),
 url = require('url');
 
 
@@ -82,7 +81,7 @@ function searchUrls(term) {
     }
     if (matches.length > 0) {
         var hashData = term + Math.random();
-        sys.puts("trying md5.update(" + hashData + ")");
+        var md5 = crypto.createHash('md5');
         md5.update(hashData);
         var searchKey = md5.digest('hex');
         searches[searchKey] = matches;
