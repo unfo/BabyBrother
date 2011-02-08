@@ -25,13 +25,21 @@ function handleRequest(request, response) {
     if (data["href"] == "/favicon.ico") {
         response.writeHead(404, {'Content-Type': 'text/plain'});
         response.write("Favicon not found");
+    } else if (data.search.length == 0) {
+        response.writeHead(200, {'Content-Type': 'text/html'});
+        response.write("<input type='text' name='search'/><input type='submit' value='Go'/>");
     } else {
         try {
-            var searchKey = data.query.search;
-            var search = searches[searchKey];
-            if (typeof(search) !== undefined && search != null) {
+            var key;
+            if (data.query.key) {
+                key = data.query.key;
+            } else if (data.query.search) {
+                key = searchUrls(decodeURI(data.query.search));
+            }
+            var searchResults = searches[key];
+            if (typeof(searchResults) !== undefined && searchResults != null) {
                 response.writeHead(200, {'Content-Type': 'text/json'});
-                response.write(JSON.stringify(search));
+                response.write(JSON.stringify(searchResults));
             } else {
                 response.writeHead(404, {'Content-Type': 'text/plain'});
                 response.write("Search not found");
@@ -107,7 +115,7 @@ client.addListener('message', function (from, to, message) {
                var numMatches = searchMatches.length;
                var reply = "Match 1/" + numMatches + ":" + searchMatches[0];
                if (numMatches > 1) {
-                    reply += " - you can see the rest here: http://ec2-46-137-6-201.eu-west-1.compute.amazonaws.com/?search=" + searchResults;
+                    reply += " - you can see the rest here: http://ec2-46-137-6-201.eu-west-1.compute.amazonaws.com:8000/?key=" + searchResults;
                }
                
                client.say(CHANNEL, reply);
