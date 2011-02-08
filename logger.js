@@ -232,7 +232,7 @@ client.addListener('message', function (from, to, message) {
 
 });
 
-repl.start("bot> ");
+repl.start("bot> ").context.client = client;
 
 // this is for IDEA
 if (typeof(sys) === "undefined") { sys = { puts: function() {} }}
