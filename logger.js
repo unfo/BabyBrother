@@ -75,6 +75,7 @@ function addIfNew(url) {
     if (!found) {
         sys.puts("New url:: " + url);
         urls.push(url);
+        saveToFS();
         return true;
     } else {
         return false;
