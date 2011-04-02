@@ -85,10 +85,9 @@ function addIfNew(url) {
 
 function searchUrls(term) {
     var matches = [];
-    var re = new RegExp(term);
     for (var i = 0; i < urls.length; i++) {
-        if (urls[i].match(re)) {
-            matches.push(urls[i]);
+        if (urls[i].indexOf(term) > -1) {
+             matches.push(urls[i]);
         }
     }
     if (matches.length > 0) {
